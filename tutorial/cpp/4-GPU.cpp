@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
+#include <random>
 
 #include <faiss/IndexFlat.h>
 #include <faiss/gpu/GpuIndexFlat.h>
@@ -21,18 +21,21 @@ int main() {
     int nb = 100000;                       // database size
     int nq = 10000;                        // nb of queries
 
+    std::mt19937 rng;
+    std::uniform_real_distribution<> distrib;
+
     float *xb = new float[d * nb];
     float *xq = new float[d * nq];
 
     for(int i = 0; i < nb; i++) {
         for(int j = 0; j < d; j++)
-            xb[d * i + j] = drand48();
+            xb[d * i + j] = distrib(rng);
         xb[d * i] += i / 1000.;
     }
 
     for(int i = 0; i < nq; i++) {
         for(int j = 0; j < d; j++)
-            xq[d * i + j] = drand48();
+            xq[d * i + j] = distrib(rng);
         xq[d * i] += i / 1000.;
     }
 
@@ -77,7 +80,6 @@ int main() {
 
     int nlist = 100;
     faiss::gpu::GpuIndexIVFFlat index_ivf(&res, d, nlist, faiss::METRIC_L2);
-    // here we specify METRIC_L2, by default it performs inner-product search
 
     assert(!index_ivf.is_trained);
     index_ivf.train(nb, xb);

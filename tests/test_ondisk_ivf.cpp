@@ -1,14 +1,15 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 #include <cstdio>
 #include <cstdlib>
+#include <random>
 
+#include <unistd.h>
 #include <omp.h>
 
 #include <unordered_map>
@@ -16,10 +17,10 @@
 
 #include <gtest/gtest.h>
 
-#include <faiss/OnDiskInvertedLists.h>
+#include <faiss/invlists/OnDiskInvertedLists.h>
 #include <faiss/IndexIVFFlat.h>
 #include <faiss/IndexFlat.h>
-#include <faiss/utils.h>
+#include <faiss/utils/random.h>
 #include <faiss/index_io.h>
 
 
@@ -29,13 +30,12 @@ struct Tempfilename {
 
     static pthread_mutex_t mutex;
 
-    std::string filename;
+    std::string filename = "faiss_tmp_XXXXXX";
 
-    Tempfilename (const char *prefix = nullptr) {
+    Tempfilename () {
         pthread_mutex_lock (&mutex);
-        char *cfname = tempnam (nullptr, prefix);
-        filename = cfname;
-        free(cfname);
+        int fd = mkstemp (&filename[0]);
+        close(fd);
         pthread_mutex_unlock (&mutex);
     }
 
@@ -70,8 +70,10 @@ TEST(ONDISK, make_invlists) {
 
     {
         std::vector<uint8_t> code(32);
+        std::mt19937 rng;
+        std::uniform_real_distribution<> distrib;
         for (int i = 0; i < nadd; i++) {
-            double d = drand48();
+            double d = distrib(rng);
             int list_no = int(nlist * d * d); // skewed distribution
             int * ar = (int*)code.data();
             ar[0] = i;
@@ -84,10 +86,10 @@ TEST(ONDISK, make_invlists) {
     int ntot = 0;
     for (int i = 0; i < nlist; i++) {
         int size = ivf.list_size(i);
-        const long *ids = ivf.get_ids (i);
+        const faiss::Index::idx_t *ids = ivf.get_ids (i);
         const uint8_t *codes = ivf.get_codes (i);
         for (int j = 0; j < size; j++) {
-            long id = ids[j];
+            faiss::Index::idx_t id = ids[j];
             const int * ar = (const int*)&codes[code_size * j];
             EXPECT_EQ (ar[0], id);
             EXPECT_EQ (ar[1], i);
@@ -175,7 +177,6 @@ TEST(ONDISK, make_invlists_threaded) {
     int nlist = 100;
     int code_size = 32;
     int nadd = 1000000;
-    int nt = 20;
 
     Tempfilename filename;
 
@@ -185,8 +186,10 @@ TEST(ONDISK, make_invlists_threaded) {
 
     std::vector<int> list_nos (nadd);
 
+    std::mt19937 rng;
+    std::uniform_real_distribution<> distrib;
     for (int i = 0; i < nadd; i++) {
-        double d = drand48();
+        double d = distrib(rng);
         list_nos[i] = int(nlist * d * d); // skewed distribution
     }
 
@@ -206,10 +209,10 @@ TEST(ONDISK, make_invlists_threaded) {
     int ntot = 0;
     for (int i = 0; i < nlist; i++) {
         int size = ivf.list_size(i);
-        const long *ids = ivf.get_ids (i);
+        const faiss::Index::idx_t *ids = ivf.get_ids (i);
         const uint8_t *codes = ivf.get_codes (i);
         for (int j = 0; j < size; j++) {
-            long id = ids[j];
+            faiss::Index::idx_t id = ids[j];
             const int * ar = (const int*)&codes[code_size * j];
             EXPECT_EQ (ar[0], id);
             EXPECT_EQ (ar[1], i);

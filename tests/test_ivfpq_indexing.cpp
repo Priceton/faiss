@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 
 #include <cstdio>
 #include <cstdlib>
+#include <random>
 
 #include <gtest/gtest.h>
 
@@ -40,13 +40,14 @@ TEST(IVFPQ, accuracy) {
     // index that gives the ground-truth
     faiss::IndexFlatL2 index_gt (d);
 
-    srand48 (35);
+    std::mt19937 rng;
+    std::uniform_real_distribution<> distrib;
 
     { // training
 
         std::vector <float> trainvecs (nt * d);
         for (size_t i = 0; i < nt * d; i++) {
-            trainvecs[i] = drand48();
+            trainvecs[i] = distrib(rng);
         }
         index.verbose = true;
         index.train (nt, trainvecs.data());
@@ -56,7 +57,7 @@ TEST(IVFPQ, accuracy) {
 
         std::vector <float> database (nb * d);
         for (size_t i = 0; i < nb * d; i++) {
-            database[i] = drand48();
+            database[i] = distrib(rng);
         }
 
         index.add (nb, database.data());
@@ -70,7 +71,7 @@ TEST(IVFPQ, accuracy) {
 
         std::vector <float> queries (nq * d);
         for (size_t i = 0; i < nq * d; i++) {
-            queries[i] = drand48();
+            queries[i] = distrib(rng);
         }
 
         std::vector<faiss::Index::idx_t> gt_nns (nq);

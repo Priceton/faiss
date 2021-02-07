@@ -1,8 +1,7 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
@@ -12,7 +11,7 @@
 #include <gtest/gtest.h>
 
 #include <faiss/IndexBinaryFlat.h>
-#include <faiss/hamming.h>
+#include <faiss/utils/hamming.h>
 
 TEST(BinaryFlat, accuracy) {
   // dimension of the vectors to index
@@ -24,8 +23,6 @@ TEST(BinaryFlat, accuracy) {
   // make the index object and train it
   faiss::IndexBinaryFlat index(d);
 
-  srand(35);
-
   std::vector<uint8_t> database(nb * (d / 8));
   for (size_t i = 0; i < nb * (d / 8); i++) {
     database[i] = rand() % 0x100;
@@ -35,7 +32,7 @@ TEST(BinaryFlat, accuracy) {
     index.add(nb, database.data());
   }
 
-  int nq = 200;
+  size_t nq = 200;
 
   { // searching the database
 

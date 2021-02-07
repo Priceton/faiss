@@ -1,8 +1,7 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
@@ -11,13 +10,14 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <random>
 
 #include <sys/time.h>
 
 
-#include "../IndexIVFPQ.h"
-#include "../IndexFlat.h"
-#include "../index_io.h"
+#include <faiss/IndexIVFPQ.h>
+#include <faiss/IndexFlat.h>
+#include <faiss/index_io.h>
 
 double elapsed ()
 {
@@ -55,13 +55,16 @@ int main ()
                              ncentroids, 4, 8);
 
 
+    std::mt19937 rng;
+
     { // training
         printf ("[%.3f s] Generating %ld vectors in %dD for training\n",
                 elapsed() - t0, nt, d);
 
         std::vector <float> trainvecs (nt * d);
+        std::uniform_real_distribution<> distrib;
         for (size_t i = 0; i < nt * d; i++) {
-            trainvecs[i] = drand48();
+            trainvecs[i] = distrib(rng);
         }
 
         printf ("[%.3f s] Training the index\n",
@@ -87,8 +90,9 @@ int main ()
                 elapsed() - t0, nb);
 
         std::vector <float> database (nb * d);
+        std::uniform_real_distribution<> distrib;
         for (size_t i = 0; i < nb * d; i++) {
-            database[i] = drand48();
+            database[i] = distrib(rng);
         }
 
         printf ("[%.3f s] Adding the vectors to the index\n",
@@ -97,7 +101,7 @@ int main ()
         index.add (nb, database.data());
 
         printf ("[%.3f s] imbalance factor: %g\n",
-                elapsed() - t0, index.imbalance_factor ());
+                elapsed() - t0, index.invlists->imbalance_factor ());
 
         // remember a few elements from the database as queries
         int i0 = 1234;

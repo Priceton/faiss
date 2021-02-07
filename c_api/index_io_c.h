@@ -1,8 +1,7 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
@@ -44,11 +43,6 @@ int faiss_read_index(FILE *f, int io_flags, FaissIndex **p_out);
  * This is equivalent to `faiss:read_index` when a file path is given.
  */
 int faiss_read_index_fname(const char *fname, int io_flags, FaissIndex **p_out);
-
-/* cloning functions */
-
-/** Clone an index. This is equivalent to `faiss::clone_index` */
-int faiss_clone_index (const FaissIndex *, FaissIndex ** p_out);
 
 #ifdef __cplusplus
 }

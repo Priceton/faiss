@@ -1,13 +1,13 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 #include <cstdio>
 #include <cstdlib>
+#include <random>
 
 #undef FINTEGER
 #define FINTEGER long
@@ -32,8 +32,10 @@ int sgeqrf_ (FINTEGER *m, FINTEGER *n, float *a, FINTEGER *lda,
 float *new_random_vec(int size)
 {
     float *x = new float[size];
+    std::mt19937 rng;
+    std::uniform_real_distribution<> distrib;
     for (int i = 0; i < size; i++)
-        x[i] = drand48();
+        x[i] = distrib(rng);
     return x;
 }
 

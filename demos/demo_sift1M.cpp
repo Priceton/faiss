@@ -1,8 +1,7 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
@@ -20,8 +19,8 @@
 
 #include <sys/time.h>
 
-#include "../AutoTune.h"
-
+#include <faiss/AutoTune.h>
+#include <faiss/index_factory.h>
 
 /**
  * To run this demo, please download the ANN_SIFT1M dataset from
@@ -243,6 +242,9 @@ int main()
         printf("R@1 = %.4f\n", n_1 / float(nq));
         printf("R@10 = %.4f\n", n_10 / float(nq));
         printf("R@100 = %.4f\n", n_100 / float(nq));
+
+        delete [] I;
+        delete [] D;
 
     }
 

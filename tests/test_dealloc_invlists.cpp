@@ -1,8 +1,7 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
@@ -11,13 +10,16 @@
 
 #include <memory>
 #include <vector>
+#include <random>
 
 #include <gtest/gtest.h>
 
 #include <faiss/IndexIVF.h>
+#include <faiss/index_factory.h>
 #include <faiss/AutoTune.h>
 #include <faiss/index_io.h>
 #include <faiss/IVFlib.h>
+
 
 using namespace faiss;
 
@@ -38,19 +40,15 @@ size_t nb = 1000;
 // nb of queries
 size_t nq = 200;
 
-
-int total_size = 40;
-int window_size = 10;
-
-
-
-
+std::mt19937 rng;
 
 std::vector<float> make_data(size_t n)
 {
     std::vector <float> database (n * d);
+    std::uniform_real_distribution<> distrib;
+
     for (size_t i = 0; i < n * d; i++) {
-        database[i] = drand48();
+        database[i] = distrib(rng);
     }
     return database;
 }
@@ -108,11 +106,11 @@ struct EncapsulateInvertedLists: InvertedLists {
                                list_size(list_no) * sizeof(idx_t));
     }
 
-    void release_codes (const uint8_t *codes) const override {
+    void release_codes (size_t, const uint8_t *codes) const override {
         free ((void*)codes);
     }
 
-    void release_ids (const idx_t *ids) const override {
+    void release_ids (size_t, const idx_t *ids) const override {
         free ((void*)ids);
     }
 
@@ -122,26 +120,21 @@ struct EncapsulateInvertedLists: InvertedLists {
                                  code_size);
     }
 
-    virtual size_t add_entries (
-           size_t, size_t,
-           const idx_t*, const uint8_t *) override
-    {
-        assert(!"not implemented");
-        return 0;
+    size_t add_entries(size_t, size_t, const idx_t*, const uint8_t*) override {
+      assert(!"not implemented");
+      return 0;
     }
 
-
-    virtual void update_entries (size_t , size_t , size_t ,
-                                 const idx_t *, const uint8_t *)
+    void update_entries(size_t, size_t, size_t, const idx_t*, const uint8_t*)
         override {
-        assert(!"not implemented");
+      assert(!"not implemented");
     }
 
-    virtual void resize (size_t , size_t ) override {
-        assert(!"not implemented");
+    void resize(size_t, size_t) override {
+      assert(!"not implemented");
     }
 
-    ~EncapsulateInvertedLists () {}
+    ~EncapsulateInvertedLists() override {}
 };
 
 

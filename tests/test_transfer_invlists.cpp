@@ -1,8 +1,7 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
@@ -14,10 +13,12 @@
 
 #include <faiss/IndexIVFFlat.h>
 #include <faiss/index_io.h>
-#include <faiss/AuxIndexStructures.h>
+#include <faiss/impl/io.h>
 #include <faiss/AutoTune.h>
+#include <faiss/index_factory.h>
+#include <faiss/clone_index.h>
 #include <faiss/VectorTransform.h>
-#include <faiss/utils.h>
+#include <faiss/utils/random.h>
 #include <faiss/IVFlib.h>
 
 

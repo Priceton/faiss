@@ -1,8 +1,7 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
@@ -38,13 +37,6 @@ int faiss_read_index(FILE *f, int io_flags, FaissIndex **p_out) {
 int faiss_read_index_fname(const char *fname, int io_flags, FaissIndex **p_out) {
     try {
         auto out = faiss::read_index(fname, io_flags);
-        *p_out = reinterpret_cast<FaissIndex*>(out);
-    } CATCH_AND_HANDLE
-}
-
-int faiss_clone_index (const FaissIndex *idx, FaissIndex **p_out) {
-    try {
-        auto out = faiss::clone_index(reinterpret_cast<const Index*>(idx));
         *p_out = reinterpret_cast<FaissIndex*>(out);
     } CATCH_AND_HANDLE
 }

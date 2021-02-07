@@ -1,8 +1,7 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * This source code is licensed under the BSD+Patents license found in the
+ * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
@@ -11,11 +10,12 @@
 
 #include <memory>
 #include <vector>
+#include <random>
 
 #include <gtest/gtest.h>
 
 #include <faiss/IndexIVF.h>
-#include <faiss/AutoTune.h>
+#include <faiss/index_factory.h>
 #include <faiss/VectorTransform.h>
 #include <faiss/IVFlib.h>
 
@@ -38,11 +38,14 @@ size_t nb = 8000;
 // nb of queries
 size_t nq = 200;
 
+std::mt19937 rng;
+
 std::vector<float> make_data(size_t n)
 {
     std::vector <float> database (n * d);
+    std::uniform_real_distribution<> distrib;
     for (size_t i = 0; i < n * d; i++) {
-        database[i] = drand48();
+        database[i] = distrib(rng);
     }
     return database;
 }
